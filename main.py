@@ -33,8 +33,8 @@ async def verify_token(authorization: str = Header(...)):
 
 
 @app.get("/")
-async def get_root(_: str = Depends(verify_token)):
-    return schemas.Response()
+async def get_root():
+    return {"status": "ok"}
 
 
 @app.post("/generate")
