@@ -1,10 +1,6 @@
-[简体中文](README_ZH.md) | [日本語](README_JA.md)
+# Voices AI Music API
 
-
-# Unofficial Suno API
-
-This is an unofficial Suno API based on Python and FastAPI. It currently supports generating songs, lyrics, etc.  
-It comes with a built-in token maintenance and keep-alive feature, so you don't have to worry about the token expiring.
+This is an the official Voices AI Music API based on Python and FastAPI. It currently supports generating songs, lyrics, etc.  
 
 ### Features
 
@@ -48,9 +44,3 @@ docker compose build && docker compose up
 After setting up the service, visit /docs
 
 ![docs](./images/docs.png)
-
-
-#### Contanct me
-
-
-<img src="./images/wechat.jpg" width="382px" height="511px" />
