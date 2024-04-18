@@ -5,7 +5,7 @@ import json
 from fastapi import Header, FastAPI, HTTPException, status, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from utils import generate_music, get_feed, generate_lyrics, get_lyrics
+from utils import generate_music, get_feed, generate_lyrics, get_lyrics, get_trending
 from deps import get_token
 import schemas
 
@@ -38,24 +38,13 @@ async def get_root():
 
 
 @app.post("/generate")
-async def generate(data: schemas.CustomModeGenerateParam, _: str = Depends(verify_token), token: str = Depends(get_token)):
+async def generate(data: schemas.GenerateBase, _: str = Depends(verify_token), token: str = Depends(get_token)):
     try:
         resp = await generate_music(data.dict(), token)
         return resp
     except Exception as e:
-        raise HTTPException(
-            detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        raise HTTPException(detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@app.post("/generate/description-mode")
-async def generate_with_song_description(data: schemas.DescriptionModeGenerateParam, token: str = Depends(get_token)):
-    try:
-        resp = await generate_music(data.dict(), token)
-        return resp
-    except Exception as e:
-        raise HTTPException(
-            detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-)
 
 @app.get("/feed/{aid}")
 async def fetch_feed(aid: str, _: str = Depends(verify_token), token: str = Depends(get_token)):
@@ -63,9 +52,21 @@ async def fetch_feed(aid: str, _: str = Depends(verify_token), token: str = Depe
         resp = await get_feed(aid, token)
         return resp
     except Exception as e:
-        raise HTTPException(
-            detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        raise HTTPException(detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.get("/trending")
+async def fetch_trending(_: str = Depends(verify_token), token: str = Depends(get_token)):
+    try:
+        resp = {}
+        resp['now'] = await get_trending(token, 'now', 0)
+        resp['weekly'] = await get_trending(token, 'weekly', 0)
+        resp['montly'] = await get_trending(token, 'montly', 0)
+        resp['alltime'] = await get_trending(token, 'alltime', 0)
+
+        return resp
+    except Exception as e:
+        raise HTTPException(detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.post("/generate/lyrics/")
@@ -73,17 +74,13 @@ async def generate_lyrics_post(request: Request, _: str = Depends(verify_token),
     req = await request.json()
     prompt = req.get("prompt")
     if prompt is None:
-        raise HTTPException(
-            detail="prompt is required", status_code=status.HTTP_400_BAD_REQUEST
-        )
+        raise HTTPException(detail="prompt is required", status_code=status.HTTP_400_BAD_REQUEST)
 
     try:
         resp = await generate_lyrics(prompt, token)
         return resp
     except Exception as e:
-        raise HTTPException(
-            detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        raise HTTPException(detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.get("/lyrics/{lid}")
@@ -92,6 +89,4 @@ async def fetch_lyrics(lid: str, _: str = Depends(verify_token), token: str = De
         resp = await get_lyrics(lid, token)
         return resp
     except Exception as e:
-        raise HTTPException(
-            detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        raise HTTPException(detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
