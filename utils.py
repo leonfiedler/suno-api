@@ -71,7 +71,6 @@ async def get_trending(token, interval, page=0):
             'image_url': modified_item["image_url"],
             'audio_url': modified_item["audio_url"],
             'title': modified_item["title"],
-            'duration': modified_item["metadata"]['duration'],
             'tags': modified_item["metadata"]['tags']
         }
 
